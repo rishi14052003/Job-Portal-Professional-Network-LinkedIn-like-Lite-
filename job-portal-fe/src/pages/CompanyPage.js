@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { User } from 'lucide-react';
 import { logout } from '../redux/userSlice.js';
 import '../design/style.css';
 import logoutImage from '../assets/logout.png'
@@ -191,126 +192,257 @@ export default function CompanyPage() {
   };
 
   return (
-    <div className="card center-card">
-      <div className="freelancer-header">
-        <img src={companyLogo} alt="Company Logo" width="150" height="150" />
-        <h3>Workaholic Dashboard</h3>
-        <div className="header-controls">
-          <button type="button"className="profile-button" onClick={handleProfileClick}>Profile</button>
-          <button type="button"className="profile-button" onClick={handleLogout} aria-label="Logout">
-            <img 
-              src={logoutImage} 
-              alt="Logout" 
-              width="20" 
-              height="20" 
-              style={{ verticalAlign: 'middle' }}
-            />
-          </button>
+    <div className="page-layout">
+      <div className="company-header">
+        <div className="header-content">
+          <div className="welcome-section">
+            <h1 className="welcome-text">Welcome back, {user.name || 'Company'}!</h1>
+            <p className="page-subtitle">Manage your job postings and find talented professionals</p>
+          </div>
+          <div className="header-controls">
+            <button className="profile-button" onClick={handleProfileClick}>
+              <User size={16} />
+              Profile
+            </button>
+          </div>
         </div>
       </div>
 
-      {errorMessage && <p className="error2">{errorMessage}</p>}
-      {successMessage && <p className="success2">{successMessage}</p>}
+      {errorMessage && <div className="alert alert-error">{errorMessage}</div>}
+      {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
-      <div className="form3">
-        <h3>{editingJobId ? 'Edit Job' : 'Post a Job'}</h3>
-        <label className="cplabel"><strong>Job Title*</strong></label>
-        <input type="text" value={title} onChange={e => setTitle(e.target.value)} className="input" placeholder="e.g. Software Developer" />
-
-        <label className="cplabel"><strong>Location*</strong></label>
-        <input type="text" value={location} onChange={e => setLocation(e.target.value)} className="input" placeholder="e.g. Gujarat, India" />
-
-        <label className="cplabel"><strong>Job Description*</strong></label>
-        <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="input" placeholder="Describe role, responsibilities and requirements" />
-
-        <div className="button-row">
-          <button className="buttonpj" onClick={handlePostOrUpdate} disabled={updateLoading}>
-            {editingJobId ? (updateLoading ? 'Updating...' : 'Update Job') : 'Post Job'}
-          </button>
-          {editingJobId && <button className="buttonpj" onClick={handleCancelEdit}>Cancel</button>}
-        </div>
-
-        <h3>Jobs Posted</h3>
-        {jobs.length === 0 ? <p className="muted">No jobs posted</p> : (
-          <ul className="output">
-            {jobs.map(job => (
-              <li key={job.id} className="entry-item job-item">
-                <div className="entry-text job-entry-text">
-                  <p><strong>Title:</strong> {job.title}</p>
-                  <p><strong>Location:</strong> {job.location}</p>
-                  <p><strong>Description:</strong> {job.description}</p>
+      <div className="content-grid">
+        <div className="main-content">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">{editingJobId ? 'Edit Job' : 'Post a New Job'}</h2>
+            </div>
+            <div className="card-content">
+              <div className="form-section">
+                <div className="form-group">
+                  <label className="form-label">Job Title*</label>
+                  <input 
+                    type="text" 
+                    value={title} 
+                    onChange={e => setTitle(e.target.value)} 
+                    className="input" 
+                    placeholder="e.g. Senior Software Developer" 
+                  />
                 </div>
 
-                <div className="job-actions">
-                  {expandedJobId !== job.id && (
-                    <div className="button-row">
-                      {confirmDeleteId === job.id ? (
-                        <div className="delete-confirm-box">
-                          <p>You sure?</p>
-                          <div className="buttondcp">
-                            <button className="buttonert1" onClick={() => handleDeleteJob(job.id)} disabled={deleteLoadingId === job.id}>
-                              {deleteLoadingId === job.id ? 'Deleting...' : 'Yes'}
-                            </button>
-                            <button className="buttonert1" onClick={() => setConfirmDeleteId(null)} disabled={deleteLoadingId === job.id}>No</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <button className="buttondcpage edit-btn" onClick={() => handleEditClick(job)}>Edit</button>
-                          <button className="buttondcpage delete-btn" onClick={() => setConfirmDeleteId(job.id)} disabled={deleteLoadingId === job.id}>Delete</button>
-                        </>
-                      )}
-                    </div>
+                <div className="form-group">
+                  <label className="form-label">Location*</label>
+                  <input 
+                    type="text" 
+                    value={location} 
+                    onChange={e => setLocation(e.target.value)} 
+                    className="input" 
+                    placeholder="e.g. San Francisco, CA" 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Job Description*</label>
+                  <textarea
+                    value={description} 
+                    onChange={e => setDescription(e.target.value)} 
+                    className="input" 
+                    placeholder="Describe the role, responsibilities, requirements, and what makes your company great"
+                    rows={4}
+                  />
+                </div>
+
+                <div className="button-row right-aligned">
+                  <button 
+                    className="button primary" 
+                    onClick={handlePostOrUpdate} 
+                    disabled={updateLoading}
+                  >
+                    {updateLoading ? 'Processing...' : (editingJobId ? 'Update Job' : 'Post Job')}
+                  </button>
+                  {editingJobId && (
+                    <button className="button secondary" onClick={handleCancelEdit}>
+                      Cancel
+                    </button>
                   )}
-                  <div className="button-row job-applicants-toggle-button">
-                    {confirmDeleteId !== job.id && (
-                      <button className="buttondcpage application-btn" onClick={() => toggleApplicants(job.id)}>
-                        {expandedJobId === job.id ? 'Hide Applications' : 'View Applications'}
-                      </button>
-                    )}
-                  </div>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                {expandedJobId === job.id && jobsApplicants[job.id] && (
-                  <div className="applicants-container full-width-container">
-                    <h4>Applicants:</h4>
-                    {jobsApplicants[job.id].length === 0 ? <p className="muted">No applicants for this job yet.</p> : (
-                      <ul className="output applicants-list">
-                        {jobsApplicants[job.id].map(app => (
-                          <li key={app.applicationId} className="entry-item applicant-item">
-                            <div className="entry-text applicant-info">
-                              <p><strong>Email:</strong> {app.user_email}</p>
-                              <p><strong>Name:</strong> {app.user_name}</p>
-                              <p><strong>Status:</strong> <strong className={`status-${app.status}`}>{app.status}</strong></p>
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Your Job Postings</h2>
+              <span className="job-count">{jobs.length} {jobs.length === 1 ? 'Job' : 'Jobs'}</span>
+            </div>
+            <div className="card-content">
+              {jobs.length === 0 ? (
+                <div className="empty-state">
+                  <p className="muted">No jobs posted yet. Create your first job posting above!</p>
+                </div>
+              ) : (
+                <div className="job-list">
+                  {jobs.map(job => (
+                    <div key={job.id} className="job-card-item">
+                      <div className="job-content">
+                        <h3 className="job-title">{job.title}</h3>
+                        <p className="job-location">📍 {job.location}</p>
+                        <p className="job-description">{job.description}</p>
+                      </div>
+
+                      <div className="job-actions">
+                        <div className="action-buttons">
+                          {confirmDeleteId === job.id ? (
+                            <div className="delete-confirm-box">
+                              <p>Are you sure you want to delete this job?</p>
+                              <div className="button-row">
+                                <button 
+                                  className="button danger" 
+                                  onClick={() => handleDeleteJob(job.id)} 
+                                  disabled={deleteLoadingId === job.id}
+                                >
+                                  {deleteLoadingId === job.id ? 'Deleting...' : 'Yes, Delete'}
+                                </button>
+                                <button 
+                                  className="button secondary" 
+                                  onClick={() => setConfirmDeleteId(null)}
+                                  disabled={deleteLoadingId === job.id}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
                             </div>
-                            {app.status === 'pending' && (
-                              <div className="button-row applicant-actions">
-                                {confirmRespond.applicationId === app.applicationId ? (
-                                  <div className="confirm-boxfree">
-                                    <span>You sure?</span>
-                                    <div className="action-buttons">
-                                      <button className="buttoncpyes" onClick={confirmRespondYes}>Yes</button>
-                                      <button className="buttoncpno" onClick={confirmRespondNo}>No</button>
+                          ) : (
+                            <>
+                              <button 
+                                className="button secondary" 
+                                onClick={() => handleEditClick(job)}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="button danger" 
+                                onClick={() => setConfirmDeleteId(job.id)}
+                                disabled={deleteLoadingId === job.id}
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                        <button 
+                          className="button primary view-applicants-btn"
+                          onClick={() => toggleApplicants(job.id)}
+                        >
+                          {expandedJobId === job.id ? 'Hide Applications' : 'View Applications'}
+                        </button>
+                      </div>
+
+                      {expandedJobId === job.id && jobsApplicants[job.id] && (
+                        <div className="applicants-container">
+                          <h4>Applicants ({jobsApplicants[job.id].length})</h4>
+                          {jobsApplicants[job.id].length === 0 ? (
+                            <p className="muted">No applicants yet for this position.</p>
+                          ) : (
+                            <div className="applicants-list">
+                              {jobsApplicants[job.id].map(app => (
+                                <div key={app.applicationId} className="applicant-card">
+                                  <div className="applicant-info">
+                                    <div className="applicant-header">
+                                      <strong>{app.user_name}</strong>
+                                      <span className="applicant-email">{app.user_email}</span>
+                                    </div>
+                                    <div className="applicant-status">
+                                      Status: <span className={`status-badge status-${app.status}`}>{app.status}</span>
                                     </div>
                                   </div>
-                                ) : (
-                                  <>
-                                    <button className="button accept-btn" onClick={() => handleRespond(app.applicationId, 'accept')}>Accept</button>
-                                    <button className="button reject-btn" onClick={() => handleRespond(app.applicationId, 'reject')}>Reject</button>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+                                  {app.status === 'pending' && (
+                                    <div className="applicant-actions">
+                                      {confirmRespond.applicationId === app.applicationId ? (
+                                        <div className="confirm-boxfree">
+                                          <span>Confirm your decision?</span>
+                                          <div className="action-buttons">
+                                            <button className="button primary" onClick={confirmRespondYes}>
+                                              Yes
+                                            </button>
+                                            <button className="button secondary" onClick={confirmRespondNo}>
+                                              No
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="action-buttons">
+                                          <button 
+                                            className="button primary accept-btn" 
+                                            onClick={() => handleRespond(app.applicationId, 'accept')}
+                                          >
+                                            Accept
+                                          </button>
+                                          <button 
+                                            className="button danger reject-btn" 
+                                            onClick={() => handleRespond(app.applicationId, 'reject')}
+                                          >
+                                            Reject
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="sidebar">
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">Quick Stats</h3>
+            </div>
+            <div className="card-content">
+              <div className="stat-item">
+                <span className="stat-number">{jobs.length}</span>
+                <span className="stat-label">Active Jobs</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">
+                  {Object.values(jobsApplicants).reduce((total, applicants) => total + applicants.length, 0)}
+                </span>
+                <span className="stat-label">Total Applicants</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">
+                  {Object.values(jobsApplicants).reduce((total, applicants) => 
+                    total + applicants.filter(app => app.status === 'pending').length, 0
+                  )}
+                </span>
+                <span className="stat-label">Pending Review</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">Tips</h3>
+            </div>
+            <div className="card-content">
+              <ul className="tips-list">
+                <li>Write clear, detailed job descriptions</li>
+                <li>Specify required skills and experience</li>
+                <li>Include salary range when possible</li>
+                <li>Respond to applicants promptly</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

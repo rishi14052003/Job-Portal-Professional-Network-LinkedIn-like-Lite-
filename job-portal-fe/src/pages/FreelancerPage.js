@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { User, Briefcase } from 'lucide-react';
 import { logout, addAppliedJob, removeAppliedJob } from '../redux/userSlice';
 import '../design/style.css';
 import companyLogo from '../assets/workaholic-high-resolution-logo.png';
@@ -152,84 +153,107 @@ export default function FreelancerPage() {
 	};
 
 	return (
-		<div className="card">
+		<div className="page-layout">
 			<div className="freelancer-header">
-				<img src={companyLogo} alt="Company Logo" width="150" height="150" />
-				<h3>Freelancer Job Portal</h3>
-				<div className="header-controls">
-					<button type="button"className="profile-button" onClick={handleProfileClick}>Profile</button>
-					<button type="button"className="profile-button" onClick={() => setShowAppliedOverlay(true)}>Applied Jobs</button>
-					<button type="button"className="profile-button" onClick={handleLogout} aria-label="Logout">
-						<img
-							src={logoutImage}
-							alt="Logout"
-							width="20"
-							height="20"
-							style={{ verticalAlign: 'middle' }}
-						/>
-					</button>
+				<div className="header-content">
+					<div className="welcome-section">
+						<h1 className="welcome-text">Welcome back, {user.name || 'Freelancer'}!</h1>
+						<p className="page-subtitle">Discover exciting opportunities and grow your career</p>
+					</div>
+					<div className="header-controls">
+						<button className="profile-button" onClick={handleProfileClick}>
+							<User size={16} />
+							Profile
+						</button>
+						<button className="profile-button" onClick={() => setShowAppliedOverlay(true)}>
+							<Briefcase size={16} />
+							Applied Jobs
+						</button>
+					</div>
 				</div>
 			</div>
 
-			{errorMessage && <p className="error2">{errorMessage}</p>}
+			{errorMessage && <div className="alert alert-error">{errorMessage}</div>}
 
 			<div className="job-container">
-				<h3>Available Jobs ({pagination.totalJobs} total)</h3>
-				{jobs.length === 0 && pagination.currentPage === 1 ? (
-					<p className="no-jobs">No jobs available</p>
-				) : jobs.length === 0 && pagination.currentPage > 1 ? (
-					<p className="no-jobs">No jobs found on this page</p>
-				) : (
-					<div className="job-grid">
-						{jobs.map(job => {
-							const application = userApplications[job.id];
-							const applicationStatus = application?.status;
-							const hasStatus = application && applicationStatus;
-							const isAppliedViaRedux = Array.isArray(user.appliedJobs) && user.appliedJobs.includes(job.id);
-							const isApplied = hasStatus || isAppliedViaRedux;
-							return (
-								<div key={job.id} className="job-card-item">
-									<div className="job-info">
-										<p><strong>Company:</strong> {job.companyName}</p>
-										<p><strong>Title:</strong> {job.title}</p>
-										<p><strong>Location:</strong> {job.location}</p>
-										<p><strong>Description:</strong> {job.description}</p>
-									</div>
-									<div className="button-row">
-										{hasStatus ? (
-											<>
-												{applicationStatus === 'pending' && (
-													<button className="status-button" onClick={() => setWithdrawConfirm(job.id)}>Withdraw</button>
-												)}
-												<button className={`status-button status-${applicationStatus}`} disabled>
-													{applicationStatus === 'pending'
-														? 'Pending'
-														: applicationStatus === 'accept'
-															? 'Accepted'
-															: 'Rejected'}
-												</button>
-											</>
-										) : isApplied ? (
-											checkingStatusIds.includes(job.id) ? (
-												<button className="status-button" disabled>Checking...</button>
-											) : (
-												<button className="check-btn" onClick={() => handleCheckStatus(job.id)}>Check Status</button>
-											)
-										) : (
-											<button
-												onClick={() => handleApply(job.id)}
-												className="button"
-												disabled={applyingJobIds.includes(job.id)}
-											>
-												{applyingJobIds.includes(job.id) ? 'Applying...' : 'Apply'}
-											</button>
-										)}
-									</div>
-								</div>
-							);
-						})}
+				<div className="card">
+					<div className="card-header">
+						<h2 className="card-title">Available Opportunities</h2>
+						<span className="job-count">{pagination.totalJobs} total jobs</span>
 					</div>
-				)}
+					<div className="card-content">
+						{jobs.length === 0 && pagination.currentPage === 1 ? (
+							<div className="empty-state">
+								<p className="no-jobs">No opportunities available at the moment.</p>
+								<p className="muted">Check back later for new job postings!</p>
+							</div>
+						) : jobs.length === 0 && pagination.currentPage > 1 ? (
+							<div className="empty-state">
+								<p className="no-jobs">No jobs found on this page.</p>
+							</div>
+						) : (
+							<div className="job-grid">
+								{jobs.map(job => {
+									const application = userApplications[job.id];
+									const applicationStatus = application?.status;
+									const hasStatus = application && applicationStatus;
+									const isAppliedViaRedux = Array.isArray(user.appliedJobs) && user.appliedJobs.includes(job.id);
+									const isApplied = hasStatus || isAppliedViaRedux;
+									return (
+										<div key={job.id} className="job-card-item">
+											<div className="job-content">
+												<h3 className="job-title">{job.title}</h3>
+												<p className="job-location">📍 {job.location}</p>
+												<p className="job-company">🏢 {job.companyName}</p>
+												<p className="job-description">{job.description}</p>
+											</div>
+											<div className="job-actions">
+												{hasStatus ? (
+													<>
+														{applicationStatus === 'pending' && (
+															<button 
+																className="button danger" 
+																onClick={() => setWithdrawConfirm(job.id)}
+															>
+																Withdraw Application
+															</button>
+														)}
+														<button className={`status-button status-${applicationStatus}`} disabled>
+															{applicationStatus === 'pending'
+																? 'Application Pending'
+																: applicationStatus === 'accept'
+																	? 'Application Accepted'
+																	: 'Application Rejected'}
+														</button>
+													</>
+												) : isApplied ? (
+													checkingStatusIds.includes(job.id) ? (
+														<button className="status-button" disabled>
+															Checking Status...
+														</button>
+													) : (
+														<button className="check-btn" onClick={() => handleCheckStatus(job.id)}>
+															Check Status
+														</button>
+													)
+												) : (
+													<button
+														onClick={() => handleApply(job.id)}
+														className="button primary"
+														disabled={applyingJobIds.includes(job.id)}
+													>
+														{applyingJobIds.includes(job.id) ? 'Applying...' : 'Apply Now'}
+													</button>
+												)}
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						)}
+					</div>
+				</div>
+
 				{pagination.totalPages > 1 && (
 					<div className="pagination-controls">
 						<button
@@ -255,21 +279,26 @@ export default function FreelancerPage() {
 				<div className="overlay">
 					<div className="overlay-content">
 						<button className="close-overlay" onClick={() => setShowAppliedOverlay(false)}>×</button>
-						<h3>Your Applied Jobs</h3>
+						<h2 className="card-title">Your Applied Jobs</h2>
 						{appliedJobs.length === 0 ? (
-							<p>No applied jobs yet.</p>
+							<div className="empty-state">
+								<p>You haven't applied to any jobs yet.</p>
+								<p className="muted">Start exploring opportunities above!</p>
+							</div>
 						) : (
 							<div className="job-grid">
 								{appliedJobs.map(job => {
 									const status = userApplications[job.id]?.status || 'pending';
 									return (
 										<div key={job.id} className="job-card-item">
-											<div className="job-info">
-												<p><strong>Company:</strong> {job.companyName}</p>
-												<p><strong>Title:</strong> {job.title}</p>
-												<p><strong>Description:</strong> {job.description}</p>
-												<p><strong>Location:</strong> {job.location}</p>
-												<p><strong>Status:</strong> <span className={`status-${status}`}>{status}</span></p>
+											<div className="job-content">
+												<h3 className="job-title">{job.title}</h3>
+												<p className="job-location">📍 {job.location}</p>
+												<p className="job-company">🏢 {job.companyName}</p>
+												<p className="job-description">{job.description}</p>
+												<div className="application-status">
+													Status: <span className={`status-badge status-${status}`}>{status}</span>
+												</div>
 											</div>
 										</div>
 									);
@@ -283,10 +312,15 @@ export default function FreelancerPage() {
 			{withdrawConfirm && (
 				<div className="overlay">
 					<div className="overlay-content">
-						<h3>Are you sure you want to withdraw your application?</h3>
-						<div>
-							<button className="withdrawbuttonfp" onClick={() => handleWithdraw(withdrawConfirm)}>Yes</button>
-							<button className="withdrawbuttonfp" onClick={() => setWithdrawConfirm(null)}>No</button>
+						<h3 className="card-title">Confirm Withdrawal</h3>
+						<p>Are you sure you want to withdraw your application for this position?</p>
+						<div className="button-row">
+							<button className="button danger" onClick={() => handleWithdraw(withdrawConfirm)}>
+								Yes, Withdraw
+							</button>
+							<button className="button secondary" onClick={() => setWithdrawConfirm(null)}>
+								Cancel
+							</button>
 						</div>
 					</div>
 				</div>
