@@ -57,7 +57,7 @@ export default function Company() {
     }
 
     fetchUserData()
-  }, [user.user_email, dispatch, initialDetailsCompleted])
+  }, [user.user_email, dispatch, initialDetailsCompleted, companyList.length])
 
   const handleLogout = () => {
     localStorage.removeItem('token')

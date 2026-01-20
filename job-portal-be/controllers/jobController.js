@@ -36,7 +36,7 @@ export const getAllJobs = async (req, res, next) => {
     const totalPages = Math.ceil(totalJobs / limit);
 
     const query = `
-      SELECT jp.id, jp.title, jp.description, jp.location, jp.company_id, ud.companyName AS companyName
+      SELECT jp.id, jp.title, jp.description, jp.location, jp.company_id, ud.company_name AS companyName
       FROM job_posts jp
       LEFT JOIN user_details ud ON jp.company_id = ud.user_id
       ORDER BY jp.id DESC
@@ -163,7 +163,7 @@ export const getApplicationsByFreelancer = async (req, res, next) => {
 
         const userId = userRows[0].id
         const [applications] = await db.execute(
-            `SELECT ja.id AS applicationId, ja.status, ja.job_id, jp.title, jp.description, ud.companyName, jp.location
+            `SELECT ja.id AS applicationId, ja.status, ja.job_id, jp.title, jp.description, ud.company_name AS companyName, jp.location
             FROM job_applications ja
             JOIN job_posts jp ON ja.job_id = jp.id
             LEFT JOIN user_details ud ON jp.company_id = ud.user_id

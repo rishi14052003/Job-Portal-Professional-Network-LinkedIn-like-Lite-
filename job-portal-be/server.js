@@ -6,7 +6,10 @@ import jobRoutes from './routes/jobRoutes.js'
 
 dotenv.config()
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'https://g0bzbbk3-5000.inc1.devtunnels.ms'],
+  credentials: true
+}))
 app.use(express.json())
 app.use('/api/users', userRoutes)
 app.use('/api/jobs', jobRoutes)

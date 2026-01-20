@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { User } from 'lucide-react';
 import { logout } from '../redux/userSlice.js';
+import axios from 'axios';
 import '../design/style.css';
-import logoutImage from '../assets/logout.png'
-import companyLogo from '../assets/workaholic-high-resolution-logo.png';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
@@ -37,10 +35,6 @@ export default function CompanyPage() {
   };
 
   const handleProfileClick = () => navigate('/company');
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/signin');
-  };
 
   const fetchApplicantDetails = async (email) => {
     try {
