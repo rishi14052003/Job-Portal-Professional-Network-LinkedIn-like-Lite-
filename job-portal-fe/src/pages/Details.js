@@ -147,211 +147,200 @@ function Details() {
   };
 
   return (
-    <>
-      <div className="signin-page-wrapper">
-        <div className="signin-page-container">
-          <div className="signin-card-container">
-            <div className="signin-left-section">
-              <div className="signin-header">
-                <h1 className="signin-title">Complete Your Profile</h1>
-                <p className="signin-subtitle">
-                  Tell us about yourself to get started
-                </p>
-              </div>
+    <div className="page-layout">
+      <div className="page-header">
+        <h1 className="page-title">Complete Your Profile</h1>
+        <p className="page-subtitle">Tell us about yourself to get started with Workaholic</p>
+      </div>
 
-              <form
-                className="signin-form form1"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSave();
-                }}
-              >
-                <div className="form-group">
-                  <label className="form-label">Full Name</label>
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="form-input input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Age</label>
-                  <input
-                    type="number"
-                    min="18"
-                    max="65"
-                    placeholder="Enter your age"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    className="form-input input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Role</label>
-                  <div className="role-group">
-                    <div className="role-option">
-                      <input
-                        type="radio"
-                        id="company"
-                        name="role"
-                        value="company"
-                        checked={role === "company"}
-                        onChange={(e) => setRole(e.target.value)}
-                      />
-                      <label htmlFor="company">Company</label>
-                    </div>
-                    <div className="role-option">
-                      <input
-                        type="radio"
-                        id="freelancer"
-                        name="role"
-                        value="freelancer"
-                        checked={role === "freelancer"}
-                        onChange={(e) => setRole(e.target.value)}
-                      />
-                      <label htmlFor="freelancer">Freelancer</label>
-                    </div>
-                  </div>
-                </div>
-
-                {role === "company" && (
-                  <>
-                    {companyList.length === 0 ? (
-                      <>
-                        <div className="form-group">
-                          <label className="form-label">Company Name</label>
-                          <input
-                            type="text"
-                            placeholder="Enter company name"
-                            value={companyName}
-                            onChange={(e) => setCompanyName(e.target.value)}
-                            className="form-input input"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label">Location</label>
-                          <input
-                            type="text"
-                            placeholder="Enter location"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            className="form-input input"
-                          />
-                        </div>
-                        <div className="button-row">
-                          <button
-                            type="button"
-                            onClick={handleCompanyAddOrSave}
-                            className="button primary"
-                          >
-                            Add Company
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="info-text">
-                        You’ve already added your company details.
-                      </p>
-                    )}
-
-                    <ul className="output company-list">
-                      {companyList.map((item, index) => (
-                        <li key={index} className="entry-item">
-                          <span className="entry-text">
-                            Company Name: {item.companyName}
-                          </span>
-                          <br />
-                          <span className="entry-text">
-                            Company Location: {item.location}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-
-                {role === "freelancer" && (
-                  <>
-                    <div className="form-group">
-                      <label className="form-label">Skills</label>
-                      <input
-                        type="text"
-                        placeholder="Enter skills"
-                        value={skills}
-                        onChange={(e) => setSkills(e.target.value)}
-                        className="form-input input"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Experience (years)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="40"
-                        placeholder="Experience"
-                        value={experience}
-                        onChange={(e) => setExperience(e.target.value)}
-                        className="form-input input"
-                      />
-                    </div>
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        onClick={handleSkillAddOrSave}
-                        className="button primary"
-                      >
-                        Add Skill
-                      </button>
-                    </div>
-                    <ul className="output skills-list">
-                      {skillsList.map((item, index) => (
-                        <li key={index} className="entry-item">
-                          <span className="entry-text">
-                            Skill: {item.skills}
-                          </span>
-                          <br />
-                          <span className="entry-text">
-                            Experience: {item.experience} years
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-
-                {error && <div className="alert alert-error">{error}</div>}
-
-                <div className="button-row">
-                  <button type="submit" className="btn-primary signin-btn">
-                    Save Details
-                  </button>
-                </div>
-              </form>
+      <div className="form-container">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+        >
+          <div className="form-section">
+            <h2 className="section-title">Basic Information</h2>
+            
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input"
+              />
             </div>
-
-            <div className="signin-right-section">
-              <div className="brand-content">
-                <div className="brand-logo-container">
-                  <img
-                    src={companyLogo}
-                    alt="Workaholic Logo"
-                    className="brand-logo-image"
+            
+            <div className="form-group">
+              <label className="form-label">Age</label>
+              <input
+                type="number"
+                min="18"
+                max="65"
+                placeholder="Enter your age"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                className="input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Role</label>
+              <div className="role-group">
+                <div className="role-option">
+                  <input
+                    type="radio"
+                    id="company"
+                    name="role"
+                    value="company"
+                    checked={role === "company"}
+                    onChange={(e) => setRole(e.target.value)}
                   />
+                  <label htmlFor="company">
+                    <span>🏢</span>
+                    Company
+                  </label>
                 </div>
-                <h2 className="brand-name">Workaholic</h2>
-                <p className="brand-tagline">
-                  Enter your details so we can tailor your experience on
-                  Workaholic
-                </p>
+                <div className="role-option">
+                  <input
+                    type="radio"
+                    id="freelancer"
+                    name="role"
+                    value="freelancer"
+                    checked={role === "freelancer"}
+                    onChange={(e) => setRole(e.target.value)}
+                  />
+                  <label htmlFor="freelancer">
+                    <span>👤</span>
+                    Freelancer
+                  </label>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          {role === "company" && (
+            <div className="form-section">
+              <h2 className="section-title">Company Information</h2>
+              
+              {companyList.length === 0 ? (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">Company Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter company name"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Location</label>
+                    <input
+                      type="text"
+                      placeholder="Enter location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="input"
+                    />
+                  </div>
+                  <div className="button-row">
+                    <button
+                      type="button"
+                      onClick={handleCompanyAddOrSave}
+                      className="button primary"
+                    >
+                      Add Company
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="alert alert-success">
+                  You've successfully added your company details.
+                </div>
+              )}
+
+              <ul className="output company-list">
+                {companyList.map((item, index) => (
+                  <li key={index} className="entry-item">
+                    <div className="entry-text">
+                      <strong>Company Name:</strong> {item.companyName}
+                    </div>
+                    <div className="entry-text">
+                      <strong>Location:</strong> {item.location}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {role === "freelancer" && (
+            <div className="form-section">
+              <h2 className="section-title">Skills & Experience</h2>
+              
+              <div className="form-group">
+                <label className="form-label">Skills</label>
+                <input
+                  type="text"
+                  placeholder="e.g., JavaScript, React, Node.js"
+                  value={skills}
+                  onChange={(e) => setSkills(e.target.value)}
+                  className="input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Experience (years)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="40"
+                  placeholder="Years of experience"
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  className="input"
+                />
+              </div>
+              <div className="button-row">
+                <button
+                  type="button"
+                  onClick={handleSkillAddOrSave}
+                  className="button primary"
+                >
+                  Add Skill
+                </button>
+              </div>
+              
+              <ul className="output skills-list">
+                {skillsList.map((item, index) => (
+                  <li key={index} className="entry-item">
+                    <div className="entry-text">
+                      <strong>Skill:</strong> {item.skills}
+                    </div>
+                    <div className="entry-text">
+                      <strong>Experience:</strong> {item.experience} years
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {error && <div className="alert alert-error">{error}</div>}
+
+          <div className="button-row">
+            <button type="submit" className="button primary">
+              Save Details
+            </button>
+          </div>
+        </form>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
 
