@@ -181,24 +181,34 @@ export const updateUserDetails = async (req, res, next) => {
       role = existingRole[0]?.role || null
     }
 
-    const [exists] = await db.execute('SELECT id FROM user_details WHERE user_id = ?', [userId])
+    // Update user_details
+    const [exists] = await db.execute('SELECT user_id FROM user_details WHERE user_id = ?', [userId])
     if (exists.length === 0) {
       await db.execute('INSERT INTO user_details (user_id, name, age, role, company_name, location, companies, details_completed) VALUES (?, ?, ?, ?, ?, ?, ?, 1)', [userId, name, age, role, company_name, location, JSON.stringify(companies)])
     } else {
       await db.execute('UPDATE user_details SET name = ?, age = ?, role = ?, company_name = ?, location = ?, companies = ?, details_completed = 1 WHERE user_id = ?', [name, age, role, company_name, location, JSON.stringify(companies), userId])
     }
 
+    // Handle freelancer details properly
     if (role === 'freelancer') {
-      const [existsF] = await db.execute('SELECT id FROM freelancer_details WHERE user_id = ?', [userId])
+      // Transform skillsList to proper format for database
+      const transformedSkills = skillsList.map(item => ({
+        skills: item.skills || item.skill || '',
+        experience: item.experience || 0
+      })).filter(item => item.skills)
+
+      const [existsF] = await db.execute('SELECT user_id FROM freelancer_details WHERE user_id = ?', [userId])
       if (existsF.length === 0) {
-        await db.execute('INSERT INTO freelancer_details (user_id, name, skills_json) VALUES (?, ?, ?)', [userId, name, JSON.stringify(skillsList)])
+        await db.execute('INSERT INTO freelancer_details (user_id, name, skills_json, experience) VALUES (?, ?, ?, ?)', 
+          [userId, name, JSON.stringify(transformedSkills), JSON.stringify(transformedSkills)])
       } else {
-        await db.execute('UPDATE freelancer_details SET name = ?, skills_json = ? WHERE user_id = ?', [name, JSON.stringify(skillsList), userId])
+        await db.execute('UPDATE freelancer_details SET name = ?, skills_json = ?, experience = ? WHERE user_id = ?', 
+          [name, JSON.stringify(transformedSkills), JSON.stringify(transformedSkills), userId])
       }
     }
 
     const [ud] = await db.execute('SELECT name, age, role, company_name, location, companies, details_completed FROM user_details WHERE user_id = ?', [userId])
-    const [fd] = await db.execute('SELECT skills_json AS skills FROM freelancer_details WHERE user_id = ?', [userId])
+    const [fd] = await db.execute('SELECT skills_json AS skills, experience FROM freelancer_details WHERE user_id = ?', [userId])
     const userDetails = { ...(ud[0] || {}), ...(fd[0] || {}) }
     
     // Transform company_name to companyName for frontend compatibility
@@ -221,6 +231,7 @@ export const updateUserDetails = async (req, res, next) => {
 
     return res.status(200).json({ success: true, message: 'User details updated', userDetails })
   } catch (err) {
+    console.error('Error in updateUserDetails:', err)
     next(err)
   }
 }

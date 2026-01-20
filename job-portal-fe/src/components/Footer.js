@@ -12,20 +12,20 @@ export default function Footer() {
         </div>
         <div className="footer-center">
           <img src={logo} alt="Workaholic" className="footer-logo" />
-          <span className="copyright-text">© 2025 All rights reserved</span>
+          <span className="copyright-text">2025 All rights reserved</span>
         </div>
         <div className="footer-right">
           <div className="social-icons">
-            <a href="https://www.facebook.com/info.iGeek" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.facebook.com" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
               <Facebook size={20} />
             </a>
-            <a href="https://www.instagram.com/i_geektech/?hl=en" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.instagram.com" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
               <Instagram size={20} />
             </a>
-            <a href="#" aria-label="Twitter" rel="noopener noreferrer">
+            <a href="https://x.com" aria-label="Twitter" rel="noopener noreferrer">
               <Twitter size={20} />
             </a>
-            <a href="https://linkedin.com/company/infoigeek/?originalSubdomain=in" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+            <a href="https://linkedin.com" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
               <Linkedin size={20} />
             </a>
           </div>
