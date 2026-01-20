@@ -16,7 +16,7 @@ export const createJob = async (req, res, next) => {
       await db.execute('INSERT INTO user_details (user_id) VALUES (?)', [userId]);
 
     await db.execute(
-      'INSERT INTO job_posts (company_id, title, description, location) VALUES (?, ?, ?, ?)',
+      'INSERT INTO jobs (company_id, title, description, location) VALUES (?, ?, ?, ?)',
       [userId, title, description, location || null]
     );
 
@@ -31,13 +31,13 @@ export const getAllJobs = async (req, res, next) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    const [totalRows] = await db.execute('SELECT COUNT(id) AS count FROM job_posts');
+    const [totalRows] = await db.execute('SELECT COUNT(id) AS count FROM jobs');
     const totalJobs = totalRows[0].count;
     const totalPages = Math.ceil(totalJobs / limit);
 
     const query = `
       SELECT jp.id, jp.title, jp.description, jp.location, jp.company_id, ud.company_name AS companyName
-      FROM job_posts jp
+      FROM jobs jp
       LEFT JOIN user_details ud ON jp.company_id = ud.user_id
       ORDER BY jp.id DESC
       LIMIT ${limit} OFFSET ${offset};
@@ -67,10 +67,10 @@ export const applyToJob = async (req, res, next) => {
         if (userRows.length === 0) return res.status(404).json({ success: false, message: 'User not found' })
 
         const applicantId = userRows[0].id
-        const [exists] = await db.execute('SELECT id FROM job_applications WHERE job_id = ? AND applicant_id = ?', [job_id, applicantId])
+        const [exists] = await db.execute('SELECT id FROM job_applications WHERE job_id = ? AND user_email = ?', [job_id, user_email])
         if (exists.length) return res.status(400).json({ success: false, message: 'Already applied' })
 
-        await db.execute('INSERT INTO job_applications (job_id, applicant_id, status) VALUES (?, ?, ?)', [job_id, applicantId, 'pending'])
+        await db.execute('INSERT INTO job_applications (job_id, user_email, status) VALUES (?, ?, ?)', [job_id, user_email, 'pending'])
         return res.status(201).json({ success: true, message: 'Applied successfully' })
     } catch (err) {
         next(err)
@@ -86,10 +86,10 @@ export const withdrawApplication = async (req, res, next) => {
         if (userRows.length === 0) return res.status(404).json({ success: false, message: 'User not found' })
 
         const applicantId = userRows[0].id
-        const [existing] = await db.execute('SELECT id FROM job_applications WHERE job_id = ? AND applicant_id = ?', [job_id, applicantId])
+        const [existing] = await db.execute('SELECT id FROM job_applications WHERE job_id = ? AND user_email = ?', [job_id, user_email])
         if (existing.length === 0) return res.status(404).json({ success: false, message: 'Application not found' })
 
-        await db.execute('DELETE FROM job_applications WHERE job_id = ? AND applicant_id = ?', [job_id, applicantId])
+        await db.execute('DELETE FROM job_applications WHERE job_id = ? AND user_email = ?', [job_id, user_email])
         return res.status(200).json({ success: true, message: 'Application withdrawn successfully' })
     } catch (err) {
         next(err)
@@ -102,7 +102,7 @@ export const getApplicantsByJob = async (req, res, next) => {
         const [applicants] = await db.execute(
             `SELECT ja.id AS applicationId, ja.status, u.user_email, fd.name, fd.skills_json AS skills, fd.experience
             FROM job_applications ja
-            JOIN user_login u ON ja.applicant_id = u.id
+            JOIN user_login u ON ja.user_email = u.user_email
             LEFT JOIN freelancer_details fd ON u.id = fd.user_id
             WHERE ja.job_id = ?`,
             [jobId]
@@ -132,10 +132,10 @@ export const updateJob = async (req, res, next) => {
     try {
         const { jobId } = req.params
         const { title, description, location } = req.body
-        const [existing] = await db.execute('SELECT * FROM job_posts WHERE id = ?', [jobId])
+        const [existing] = await db.execute('SELECT * FROM jobs WHERE id = ?', [jobId])
         if (existing.length === 0) return res.status(404).json({ success: false, message: 'Job not found' })
 
-        await db.execute('UPDATE job_posts SET title = ?, description = ?, location = ? WHERE id = ?', [title, description, location, jobId])
+        await db.execute('UPDATE jobs SET title = ?, description = ?, location = ? WHERE id = ?', [title, description, location, jobId])
         return res.status(200).json({ success: true, message: 'Job updated successfully' })
     } catch (err) {
         next(err)
@@ -145,10 +145,10 @@ export const updateJob = async (req, res, next) => {
 export const deleteJob = async (req, res, next) => {
     try {
         const { jobId } = req.params
-        const [existing] = await db.execute('SELECT * FROM job_posts WHERE id = ?', [jobId])
+        const [existing] = await db.execute('SELECT * FROM jobs WHERE id = ?', [jobId])
         if (existing.length === 0) return res.status(404).json({ success: false, message: 'Job not found' }) 
         await db.execute('DELETE FROM job_applications WHERE job_id = ?', [jobId])
-        await db.execute('DELETE FROM job_posts WHERE id = ?', [jobId])
+        await db.execute('DELETE FROM jobs WHERE id = ?', [jobId])
         return res.status(200).json({ success: true, message: 'Job deleted successfully' })
     } catch (err) {
         next(err)
@@ -165,11 +165,11 @@ export const getApplicationsByFreelancer = async (req, res, next) => {
         const [applications] = await db.execute(
             `SELECT ja.id AS applicationId, ja.status, ja.job_id, jp.title, jp.description, ud.company_name AS companyName, jp.location
             FROM job_applications ja
-            JOIN job_posts jp ON ja.job_id = jp.id
+            JOIN jobs jp ON ja.job_id = jp.id
             LEFT JOIN user_details ud ON jp.company_id = ud.user_id
-            WHERE ja.applicant_id = ?
+            WHERE ja.user_email = ?
             ORDER BY ja.id DESC`,
-            [userId]
+            [user_email]
         )
         return res.status(200).json({ success: true, applications })
     } catch (err) {

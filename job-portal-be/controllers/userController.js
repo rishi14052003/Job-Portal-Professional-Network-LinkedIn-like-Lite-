@@ -161,14 +161,14 @@ export const getUserByEmail = async (req, res, next) => {
 
 export const updateUserDetails = async (req, res, next) => {
   try {
-    let { user_email, name, age, role, company_name, location, skillsList, companies } = req.body
+    let { user_email, name, age, role, company_name, companyName, location, skillsList, companies } = req.body
     if (!user_email) return res.status(400).json({ success: false, message: 'user_email required' })
 
     const [userRows] = await db.execute('SELECT id FROM user_login WHERE user_email = ?', [user_email])
     if (userRows.length === 0) return res.status(404).json({ success: false, message: 'User not found' })
 
     const userId = userRows[0].id
-    companyName = company_name || null
+    company_name = company_name || companyName || null
     location = location || null
 
     if (typeof skillsList === 'string' && !skillsList.trim()) skillsList = []
