@@ -1485,24 +1485,30 @@ hr {
 }
 
 .delete-confirm-box p {
-    margin: 0;
-    font-weight: bold;
-    color: #dc3545;
+margin: 0;
+font-weight: bold;
+color: #dc3545;
 }
 
 /* LinkedIn-style Navbar */
 .navbar {
-  background-color: var(--linkedin-white);
-  border-bottom: 1px solid var(--border-light);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: var(--shadow-sm);
+background-color: #032B44;
+border-bottom: 1px solid var(--border-light);
+position: sticky;
+top: 0;
+z-index: 1000;
+height: 64px;
+box-shadow: var(--shadow-sm);
 }
 
 .navbar-container {
-  max-width: 1128px;
-  margin: 0 auto;
+max-width: 1128px;
+margin: 0 auto;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 16px;
+height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1531,7 +1537,7 @@ hr {
 .brand-text {
   font-size: 20px;
   font-weight: 600;
-  color: var(--linkedin-blue);
+  color: #ffffff;
 }
 
 .navbar-search {
@@ -1589,14 +1595,15 @@ hr {
   transition: all 0.2s ease;
   min-width: 64px;
   position: relative;
+  color: #ffffff;
 }
 
 .nav-item:hover {
-  background-color: var(--background-secondary);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .nav-item.active {
-  color: var(--linkedin-blue);
+  color: #ffffff;
 }
 
 .nav-item.active::after {
@@ -1607,7 +1614,7 @@ hr {
   transform: translateX(-50%);
   width: 32px;
   height: 2px;
-  background-color: var(--linkedin-blue);
+  background-color: #ffffff;
   border-radius: 1px;
 }
 
@@ -1615,11 +1622,11 @@ hr {
   font-size: 12px;
   margin-top: 2px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: #ffffff;
 }
 
 .nav-item.active span {
-  color: var(--linkedin-blue);
+  color: #ffffff;
 }
 
 .profile-item {
@@ -1689,10 +1696,19 @@ hr {
   .nav-item {
     min-width: 48px;
     padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .nav-item span {
     display: none;
+  }
+  
+  .nav-item svg {
+    display: block !important;
+    width: 20px !important;
+    height: 20px !important;
   }
   
   .profile-dropdown {
