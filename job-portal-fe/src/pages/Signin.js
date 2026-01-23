@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginSuccess, resetUser } from '../redux/userSlice.js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { persistor } from '../redux/store.js';
 import '../design/style.css';
@@ -13,6 +13,7 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 export default function Signin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -97,10 +98,19 @@ export default function Signin() {
       setSuccessMsg('Login successful. Redirecting...');
 
       setTimeout(() => {
-        if (!userData.detailsCompleted) navigate('/details', { replace: true });
-        else if (userData.role === 'company') navigate('/companypage', { replace: true });
-        else if (userData.role === 'freelancer') navigate('/freelancerpage', { replace: true });
-        else navigate('/details', { replace: true });
+        // Get the intended destination from location state or default based on user role
+        const from = location.state?.from?.pathname;
+        if (from && from !== '/signin' && from !== '/register') {
+          navigate(from, { replace: true });
+        } else if (!userData.detailsCompleted) {
+          navigate('/details', { replace: true });
+        } else if (userData.role === 'company') {
+          navigate('/companypage', { replace: true });
+        } else if (userData.role === 'freelancer') {
+          navigate('/freelancerpage', { replace: true });
+        } else {
+          navigate('/details', { replace: true });
+        }
       }, 800);
     } catch (err) {
       if (err.response?.status === 404) setError('User not registered');

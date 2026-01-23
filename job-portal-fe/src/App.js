@@ -34,9 +34,15 @@ function RouterApp() {
       {user.loggedIn && <Navbar />}
       <main className={`main-content ${user.loggedIn ? 'with-navbar' : ''}`}>
         <Routes>
-          <Route path="/" element={<Signin />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/signin" element={<Signin />} />
+          <Route path="/" element={
+            user.loggedIn ? <Navigate to={user.detailsCompleted ? (user.role === 'company' ? '/companypage' : user.role === 'freelancer' ? '/freelancerpage' : '/details') : '/details'} replace /> : <Signin />
+          } />
+          <Route path="/register" element={
+            user.loggedIn ? <Navigate to={user.detailsCompleted ? (user.role === 'company' ? '/companypage' : user.role === 'freelancer' ? '/freelancerpage' : '/details') : '/details'} replace /> : <Register />
+          } />
+          <Route path="/signin" element={
+            user.loggedIn ? <Navigate to={user.detailsCompleted ? (user.role === 'company' ? '/companypage' : user.role === 'freelancer' ? '/freelancerpage' : '/details') : '/details'} replace /> : <Signin />
+          } />
           <Route path="/details" element={<ProtectedRoute><Details /></ProtectedRoute>} />
           <Route path="/company" element={<ProtectedRoute><Company /></ProtectedRoute>} />
           <Route path="/freelancer" element={<ProtectedRoute><Freelancer /></ProtectedRoute>} />
