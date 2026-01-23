@@ -9,7 +9,8 @@ export default function ProtectedRoute({ children }) {
   const isAuth = user.loggedIn && user.token;
 
   if (!isAuth) {
-    return <Navigate to="/signin" replace />;
+    // Save the attempted location for redirect after login
+    return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
   const isOnDetailsPage = location.pathname === '/details';
