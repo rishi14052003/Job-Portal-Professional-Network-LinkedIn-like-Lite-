@@ -248,10 +248,7 @@ function Details() {
                     onChange={(e) => setRole(e.target.value)}
                   />
                   <label htmlFor="freelancer">
-                    <div className="role-icon-container">
-                      <User size={20} />
-                      {getFullName(firstName, lastName) && <span className="user-name-display">{getFullName(firstName, lastName)}</span>}
-                    </div>
+                    <User size={20} />
                     Freelancer
                   </label>
                 </div>

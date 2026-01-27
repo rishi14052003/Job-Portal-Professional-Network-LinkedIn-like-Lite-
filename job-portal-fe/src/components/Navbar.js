@@ -44,38 +44,29 @@ export default function Navbar() {
             className={`nav-item ${user.role === 'company' ? 'active' : ''}`}
             onClick={() => user.role === 'company' ? handleNavigation('/companypage') : handleNavigation('/freelancerpage')}
           >
-            <Home size={24} />
+            <Home size={20} />
             <span>Home</span>
           </div>
           <div className="nav-item">
-            <Briefcase size={24} />
+            <Briefcase size={20} />
+            <span>My Network</span>
+          </div>
+          <div className="nav-item">
+            <Users size={20} />
             <span>Jobs</span>
           </div>
           <div className="nav-item">
-            <Users size={24} />
-            <span>Network</span>
+            <MessageSquare size={20} />
+            <span>Messaging</span>
           </div>
           <div className="nav-item">
-            <MessageSquare size={24} />
-            <span>Messages</span>
-          </div>
-          <div className="nav-item">
-            <Bell size={24} />
+            <Bell size={20} />
             <span>Notifications</span>
           </div>
         </div>
 
         <div className="navbar-right">
-          <div className="nav-item profile-item" onClick={() => handleNavigation('/details')}>
-            <User size={24} />
-            <div className="profile-dropdown">
-              <div className="profile-info">
-                <div className="profile-name">{user.name || 'User'}</div>
-                <div className="profile-role">{user.role || 'Professional'}</div>
-              </div>
-            </div>
-          </div>
-          <button className="logout-btn" onClick={handleLogout}>
+          <button className="navbar-logout-btn" onClick={handleLogout}>
             Sign Out
           </button>
         </div>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout, updateDetails } from '../redux/userSlice.js'
+import { Building, MapPin, Edit2, Save, X, Briefcase, Users, LogOut } from 'lucide-react'
 import axiosInstance from '../utils/axiosInstance.js'
 import '../design/style.css'
-import logoutImage from '../assets/logout.png'
 
 export default function Company() {
   const user = useSelector((state) => state.user)
@@ -14,233 +14,242 @@ export default function Company() {
   const [companyName, setCompanyName] = useState(user.companies?.[0]?.companyName || '')
   const [location, setLocation] = useState(user.companies?.[0]?.location || '')
   const [editing, setEditing] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
-  const companyList = user.companies || []
-  const initialDetailsCompleted = user.detailsCompleted || false
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         if (!user.user_email) return
-        
-        if (initialDetailsCompleted && companyList.length > 0) {
-          setLoading(false)
-          return
-        }
 
+        setLoading(true)
         const res = await axiosInstance.get(`/api/users/${user.user_email}`)
         const fetched = res.data
 
-        if (fetched && fetched.companies && fetched.companies.length > 0) {
-          const fetchedCompany = fetched.companies[0]
-          setCompanyName(fetchedCompany.companyName)
-          setLocation(fetchedCompany.location)
-
+        if (fetched) {
+          // Update Redux store with fresh data
           const updatePayload = {
-            companies: fetched.companies,
-            companyName: fetchedCompany.companyName,
-            location: fetchedCompany.location,
-            detailsCompleted: fetched.detailsCompleted || true,
+            name: fetched.name || user.name,
+            age: fetched.age || user.age,
+            role: fetched.role || user.role,
+            companies: fetched.companies || [],
+            companyName: fetched.companies?.[0]?.companyName || '',
+            location: fetched.companies?.[0]?.location || '',
+            skillsList: fetched.skillsList || [],
+            experience: fetched.experience || '',
+            detailsCompleted: fetched.detailsCompleted || false,
           }
           dispatch(updateDetails(updatePayload))
-        } else {
-          setCompanyName('')
-          setLocation('')
+
+          // Update local state
+          if (fetched.companies && fetched.companies.length > 0) {
+            setCompanyName(fetched.companies[0].companyName)
+            setLocation(fetched.companies[0].location)
+          }
         }
       } catch (err) {
-        console.error('Error fetching user data:', err)
+        console.error('Error fetching company data:', err)
+        setError('Failed to load company data')
       } finally {
         setLoading(false)
       }
     }
 
     fetchUserData()
-  }, [user.user_email, dispatch, initialDetailsCompleted, companyList.length])
+  }, [user.user_email, dispatch])
+
+  const handleEdit = () => {
+    setEditing(true)
+    setError('')
+    setSuccess('')
+  }
+
+  const handleCancel = () => {
+    setEditing(false)
+    // Reset to original values
+    if (user.companies && user.companies.length > 0) {
+      setCompanyName(user.companies[0].companyName)
+      setLocation(user.companies[0].location)
+    }
+    setError('')
+    setSuccess('')
+  }
+
+  const handleSave = async () => {
+    if (!companyName.trim() || !location.trim()) {
+      setError('Company name and location are required')
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      const updatedCompanies = [{ companyName: companyName.trim(), location: location.trim() }]
+
+      const res = await axiosInstance.put(
+        '/api/users/update',
+        {
+          user_email: user.user_email,
+          name: user.name,
+          age: user.age,
+          role: user.role,
+          companies: updatedCompanies,
+          companyName: companyName.trim(),
+          location: location.trim(),
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (res.data.success) {
+        // Update Redux store
+        const updatePayload = {
+          companies: updatedCompanies,
+          companyName: companyName.trim(),
+          location: location.trim(),
+        }
+        dispatch(updateDetails(updatePayload))
+
+        setSuccess('Company details updated successfully!')
+        setEditing(false)
+      } else {
+        setError(res.data.message || 'Failed to update company details')
+      }
+    } catch (err) {
+      console.error('Error updating company details:', err)
+      setError('Failed to update company details')
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token')
-    localStorage.removeItem('user') 
+    localStorage.removeItem('user')
     dispatch(logout())
     navigate('/signin')
   }
 
-  const handleExplore = () => {
-    navigate('/companypage')
-  }
-
-  const handleAddOrSave = async () => {
-    if (!companyName || !location) {
-      setError('Please provide company name and location')
-      return
-    }
-
-    const newCompany = { companyName, location }
-    const updated = [newCompany]
-    const shouldSetDetailsCompleted = companyList.length === 0 && !initialDetailsCompleted
-
-    setEditing(false)
-    setError('')
-
-    const updatedUserDetails = {
-      user_email: user.user_email,
-      name: user.name,
-      age: user.age,
-      role: 'company',
-      companies: updated,
-      companyName: newCompany.companyName,
-      location: newCompany.location,
-      detailsCompleted: shouldSetDetailsCompleted ? true : user.detailsCompleted,
-    }
-
-    try {
-      await axiosInstance.put(`/users/update`, updatedUserDetails)
-
-      dispatch(updateDetails({
-        companies: updated,
-        companyName,
-        location,
-        detailsCompleted: updatedUserDetails.detailsCompleted,
-      }))
-      
-      localStorage.setItem('user', JSON.stringify({ ...user, ...updatedUserDetails, token: user.token }));
-
-    } catch (err) {
-      console.error('Failed to save company:', err)
-      setError('Failed to save')
-    }
-  }
-
-  const handleEdit = () => {
-    if (companyList.length > 0) {
-      setEditing(true)
-      setCompanyName(companyList[0].companyName)
-      setLocation(companyList[0].location)
-    }
-  }
-
-  const handleCancelEdit = () => {
-    setEditing(false)
-    setCompanyName(companyList[0]?.companyName || '')
-    setLocation(companyList[0]?.location || '')
-  }
-
-  const handleDeleteAsk = () => {
-    setDeleting(true)
-  }
-
-  const handleDeleteYes = async () => {
-    setDeleting(false)
-
-    const updatedUserDetails = {
-      user_email: user.user_email,
-      name: user.name,
-      age: user.age,
-      role: 'company',
-      companies: [],
-      companyName: '',
-      location: '',
-      detailsCompleted: user.detailsCompleted, 
-    }
-
-    try {
-      await axiosInstance.put(`/users/update`, updatedUserDetails)
-      
-      dispatch(updateDetails({ companies: [], companyName: '', location: '' }))
-      
-      localStorage.setItem('user', JSON.stringify({ ...user, ...updatedUserDetails, companies: [], companyName: '', location: '', token: user.token }));
-    } catch (err) {
-      setError('Failed to delete')
-    }
-  }
-
-  const handleDeleteNo = () => {
-    setDeleting(false)
-  }
-
   if (loading) {
     return (
-      <div className="page-container">
-        <p>Loading...</p>
+      <div className="profile-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading company profile...</p>
       </div>
     )
   }
 
   return (
-    <>
-      <div className="page-container">
-        <header className="welcome-header">
-          <h1>Welcome {user.name}</h1>
-          <p className="subtitle">Company Details</p>
-        </header>
-        <div className="freelancerdetails"> 
-    <p><strong>Name: </strong>{user.name}</p>
-    <p><strong>Age: </strong>{user.age}</p>
-    <p><strong>Email: </strong>{user.user_email}</p>
-</div>
-        {companyList.length > 0 && !editing ? (
-          <div className="job-card-item">
-            <p><strong>Company:</strong> {companyList[0].companyName}</p>
-            <p><strong>Location:</strong> {companyList[0].location}</p>
-            <div className="button-row">
-              {deleting ? (
-                <>
-                  <span className="confirmation-text">You sure?</span>
-                  <button className="button secondary" onClick={handleDeleteYes}>Yes</button>
-                  <button className="button secondary" onClick={handleDeleteNo}>No</button>
-                </>
-              ) : (
-                <>
-                  <button className="button secondary" onClick={handleEdit}>Edit</button>
-                  <button className="button secondary" onClick={handleDeleteAsk}>Delete</button>
-                </>
-              )}
+    <div className="profile-container">
+      <div className="profile-header">
+        <div className="profile-avatar">
+          <Building size={48} />
+        </div>
+        <div className="profile-info">
+          <h1 className="profile-name">{user.name || 'Company User'}</h1>
+          <p className="profile-role">Company Account</p>
+          <div className="profile-stats">
+            <div className="stat-item">
+              <Briefcase size={20} />
+              <span>Active Jobs</span>
+            </div>
+            <div className="stat-item">
+              <Users size={20} />
+              <span>Network</span>
             </div>
           </div>
-        ) : (
-          <div className="add-skill-form">
-            <h3>{editing ? 'Edit Company' : 'Add Company'}</h3>
-            <input
-              type="text"
-              placeholder="Company Name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className="input"
-            />
-            <input
-              type="text"
-              placeholder="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="input"
-            />
-            <div className="button-row">
-              <button className="buttonclogout" onClick={handleAddOrSave}>
-                {editing ? 'Save Company' : 'Add Company'}
+        </div>
+        <div className="profile-actions">
+          {!editing ? (
+            <button className="btn-edit" onClick={handleEdit}>
+              <Edit2 size={16} />
+              Edit Profile
+            </button>
+          ) : (
+            <div className="edit-actions">
+              <button className="btn-save" onClick={handleSave}>
+                <Save size={16} />
+                Save
               </button>
-              {editing && (
-                <button className="buttonprimaryssc" onClick={handleCancelEdit}>Cancel</button>
-              )}
+              <button className="btn-cancel" onClick={handleCancel}>
+                <X size={16} />
+                Cancel
+              </button>
             </div>
-          </div>
-        )}
-
-        {error && <div className="error">{error}</div>}
-
-        <div className="navigation-group">
-          <button onClick={handleLogout} className="buttonclogout" aria-label="Logout">
-            <img 
-              src={logoutImage} 
-              alt="Logout" 
-              width="20" 
-              height="20" 
-              style={{ verticalAlign: 'middle' }}
-            />
-          </button>
-          <button onClick={handleExplore} className="buttonclogout">Explore Workaholic</button>
+          )}
         </div>
       </div>
-    </>
+
+      <div className="profile-content">
+        <div className="profile-card">
+          <div className="card-header">
+            <h2>Company Information</h2>
+          </div>
+          <div className="card-body">
+            {error && <div className="alert alert-error">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
+
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">
+                  <Building size={18} />
+                  Company Name
+                </label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="info-input"
+                    placeholder="Enter company name"
+                  />
+                ) : (
+                  <p className="info-value">
+                    {user.companies?.[0]?.companyName || 'Not specified'}
+                  </p>
+                )}
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">
+                  <MapPin size={18} />
+                  Location
+                </label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="info-input"
+                    placeholder="Enter location"
+                  />
+                ) : (
+                  <p className="info-value">
+                    {user.companies?.[0]?.location || 'Not specified'}
+                  </p>
+                )}
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">Email</label>
+                <p className="info-value">{user.user_email}</p>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">Age</label>
+                <p className="info-value">{user.age || 'Not specified'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button className="logout-btn" onClick={handleLogout}>
+        <LogOut size={16} />
+        Sign Out
+      </button>
+    </div>
   )
-}
+} 
