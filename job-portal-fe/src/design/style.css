@@ -2980,3 +2980,39 @@ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     flex-direction: column;
     align-items: center; 
 }
+
+.user-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0a66c2 0%, #004182 100%);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  margin-right: 8px;
+  text-transform: uppercase;
+  border: 2px solid #e7f3ff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.role-icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.user-name-display {
+  font-size: 8px;
+  color: #666666;
+  margin-top: 2px;
+  text-align: center;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}

@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../redux/userSlice.js";
 import { useNavigate } from "react-router-dom";
+import { Building, User } from "lucide-react";
 import "../design/style.css";
 import companyLogo from "../assets/workaholic-high-resolution-logo.png";
-import Footer from "../components/Footer.js";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 function Details() {
   const user = useSelector((state) => state.user);
-  const [name, setName] = useState(user.name || "");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [age, setAge] = useState(
     user.age !== undefined && user.age !== null ? String(user.age) : ""
   );
@@ -25,11 +26,33 @@ function Details() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Function to get user initials
+  const getUserInitials = (firstName, lastName) => {
+    const first = firstName ? firstName.charAt(0).toUpperCase() : '';
+    const last = lastName ? lastName.charAt(0).toUpperCase() : '';
+    return first + last || 'U';
+  };
+
+  // Function to get full name
+  const getFullName = (firstName, lastName) => {
+    return `${firstName} ${lastName}`.trim();
+  };
+
   useEffect(() => {
     setCompanyList(user.companies || []);
     setSkillsList(user.skillsList || []);
     setRole(user.role || "");
-    setName(user.name || "");
+    
+    // Split existing name into first and last name
+    if (user.name) {
+      const nameParts = user.name.trim().split(' ');
+      setFirstName(nameParts[0] || "");
+      setLastName(nameParts.slice(1).join(' ') || "");
+    } else {
+      setFirstName("");
+      setLastName("");
+    }
+    
     setAge(user.age !== undefined && user.age !== null ? String(user.age) : "");
     setCompanyName(user.companyName || "");
     setLocation(user.location || "");
@@ -44,7 +67,7 @@ function Details() {
 
   const handleSave = async () => {
     const ageNumber = age === "" ? NaN : Number(age);
-    if (!name || age === "" || isNaN(ageNumber) || role === "") {
+    if (!firstName || !lastName || age === "" || isNaN(ageNumber) || role === "") {
       setError("Please fill in all fields");
       return;
     }
@@ -74,7 +97,7 @@ function Details() {
 
     const userDetails = {
       user_email: user.user_email,
-      name,
+      name: getFullName(firstName, lastName),
       age: ageNumber,
       role,
       companyName:
@@ -164,12 +187,23 @@ function Details() {
             <h2 className="section-title">Basic Information</h2>
             
             <div className="form-group">
-              <label className="form-label">Full Name</label>
+              <label className="form-label">First Name</label>
               <input
                 type="text"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Last Name</label>
+              <input
+                type="text"
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 className="input"
               />
             </div>
@@ -200,7 +234,7 @@ function Details() {
                     onChange={(e) => setRole(e.target.value)}
                   />
                   <label htmlFor="company">
-                    <span>🏢</span>
+                    <Building size={20} />
                     Company
                   </label>
                 </div>
@@ -214,7 +248,10 @@ function Details() {
                     onChange={(e) => setRole(e.target.value)}
                   />
                   <label htmlFor="freelancer">
-                    <span>👤</span>
+                    <div className="role-icon-container">
+                      <User size={20} />
+                      {getFullName(firstName, lastName) && <span className="user-name-display">{getFullName(firstName, lastName)}</span>}
+                    </div>
                     Freelancer
                   </label>
                 </div>
@@ -339,7 +376,6 @@ function Details() {
           </div>
         </form>
       </div>
-      <Footer />
     </div>
   );
 }
