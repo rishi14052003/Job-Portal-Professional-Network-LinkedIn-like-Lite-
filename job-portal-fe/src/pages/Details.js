@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Building, User } from "lucide-react";
 import "../design/style.css";
 
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 function Details() {
   const user = useSelector((state) => state.user);

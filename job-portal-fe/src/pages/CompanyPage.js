@@ -5,7 +5,7 @@ import { User } from 'lucide-react';
 import axios from 'axios';
 import '../design/style.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export default function CompanyPage() {
   const user = useSelector(state => state.user);

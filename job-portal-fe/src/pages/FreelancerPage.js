@@ -6,7 +6,7 @@ import { User, Briefcase } from 'lucide-react';
 import { addAppliedJob, removeAppliedJob } from '../redux/userSlice';
 import '../design/style.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export default function FreelancerPage() {
 	const dispatch = useDispatch();

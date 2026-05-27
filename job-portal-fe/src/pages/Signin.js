@@ -8,7 +8,7 @@ import '../design/style.css';
 import companyLogo from '../assets/workaholic-high-resolution-logo.png';
 import Footer from '../components/Footer.js';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export default function Signin() {
   const dispatch = useDispatch();
