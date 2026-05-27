@@ -3,10 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { User, Briefcase } from 'lucide-react';
-import { logout, addAppliedJob, removeAppliedJob } from '../redux/userSlice';
+import { addAppliedJob, removeAppliedJob } from '../redux/userSlice';
 import '../design/style.css';
-import companyLogo from '../assets/workaholic-high-resolution-logo.png';
-import logoutImage from '../assets/logout.png';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
@@ -69,11 +67,6 @@ export default function FreelancerPage() {
 	}, [user, fetchJobs, fetchUserApplications, navigate, pagination.currentPage, pagination.limit]);
 
 	const handleProfileClick = () => navigate('/freelancer');
-
-	const handleLogout = () => {
-		dispatch(logout());
-		navigate('/signin');
-	};
 
 	const handleApply = jobId => {
 		if (!user.user_email) return;

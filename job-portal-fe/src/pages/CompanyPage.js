@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { User } from 'lucide-react';
-import { logout } from '../redux/userSlice.js';
 import axios from 'axios';
 import '../design/style.css';
 
@@ -10,7 +9,6 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export default function CompanyPage() {
   const user = useSelector(state => state.user);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');

@@ -57,7 +57,7 @@ export default function Company() {
     }
 
     fetchUserData()
-  }, [user.user_email, dispatch])
+  }, [user, dispatch])
 
   const handleEdit = () => {
     setEditing(true)

@@ -13,7 +13,6 @@ function Freelancer() {
   
   const [skills, setSkills] = useState("")
   const [experience, setExperience] = useState("")
-  const [editingSkillIndex, setEditingSkillIndex] = useState(null)
   const [editing, setEditing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -53,7 +52,7 @@ function Freelancer() {
       }
     }
     loadFreelancerData()
-  }, [user.user_email, dispatch])
+  }, [user, dispatch])
 
   const handleEdit = () => {
     setEditing(true)
@@ -65,7 +64,6 @@ function Freelancer() {
     setEditing(false)
     setSkills('')
     setExperience('')
-    setEditingSkillIndex(null)
     setError('')
     setSuccess('')
   }
@@ -168,10 +166,6 @@ function Freelancer() {
     localStorage.removeItem("user")
     dispatch(logout())
     navigate("/signin")
-  }
-
-  const handleExplore = () => {
-    navigate("/freelancerpage")
   }
 
   if (loading) {

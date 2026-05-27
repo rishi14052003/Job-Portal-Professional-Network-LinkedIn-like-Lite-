@@ -4,7 +4,6 @@ import { loginSuccess } from "../redux/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import { Building, User } from "lucide-react";
 import "../design/style.css";
-import companyLogo from "../assets/workaholic-high-resolution-logo.png";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
@@ -25,13 +24,6 @@ function Details() {
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // Function to get user initials
-  const getUserInitials = (firstName, lastName) => {
-    const first = firstName ? firstName.charAt(0).toUpperCase() : '';
-    const last = lastName ? lastName.charAt(0).toUpperCase() : '';
-    return first + last || 'U';
-  };
 
   // Function to get full name
   const getFullName = (firstName, lastName) => {

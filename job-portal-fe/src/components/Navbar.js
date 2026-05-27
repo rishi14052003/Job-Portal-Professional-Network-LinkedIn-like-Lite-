@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Briefcase, Users, MessageSquare, Bell, Home, User } from 'lucide-react';
+import { Search, Briefcase, Users, MessageSquare, Bell, Home } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import '../design/style.css';
